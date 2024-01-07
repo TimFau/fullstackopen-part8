@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ADD_BOOK, ALL_BOOKS, All_AUTHORS } from '../queries'
 import { useMutation } from '@apollo/client'
 import { useSnackbar } from 'notistack'
+import { Stack, TextField, Button, FormControl, List, ListItem } from "@mui/material"
 
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
@@ -67,40 +68,44 @@ const NewBook = (props) => {
 
   return (
     <div>
+      <h2>Add Book</h2>
       <form onSubmit={submit}>
-        <div>
-          title
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
-        </div>
-        <div>
-          author
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
-        </div>
-        <div>
-          published
-          <input
-            type="number"
-            value={published}
-            onChange={({ target }) => setPublished(parseFloat(target.value))}
-          />
-        </div>
-        <div>
-          <input
-            value={genre}
-            onChange={({ target }) => setGenre(target.value)}
-          />
-          <button onClick={addGenre} type="button">
-            add genre
-          </button>
-        </div>
-        <div>genres: {genres.join(' ')}</div>
-        <button type="submit">create book</button>
+        <Stack spacing={2}>
+          <FormControl>
+            <TextField
+              value={title}
+              label="Title"
+              onChange={({ target }) => setTitle(target.value)}
+            />
+          </FormControl>
+          <FormControl>
+            <TextField
+              value={author}
+              label="Author"
+              onChange={({ target }) => setAuthor(target.value)}
+            />
+          </FormControl>
+          <FormControl>
+            <TextField
+              type="number"
+              value={published}
+              label="Published"
+              onChange={({ target }) => setPublished(parseFloat(target.value))}
+            />
+          </FormControl>
+          <FormControl>
+            <TextField
+              value={genre}
+              label="Genre"
+              onChange={({ target }) => setGenre(target.value)}
+            />
+            <Button onClick={addGenre} type="button">
+              add genre
+            </Button>
+          </FormControl>
+          <List>Genres: {genres.map(genre => <ListItem>{genre}</ListItem>)}</List>
+          <Button type="submit" variant="contained">Create Book</Button>
+        </Stack>
       </form>
     </div>
   )

@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client'
 import { All_AUTHORS } from '../queries'
 import SetBirthYear from './SetBirthYear'
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 
 const Authors = (props) => {
   const result = useQuery(All_AUTHORS)
@@ -16,23 +17,25 @@ const Authors = (props) => {
 
   return (
     <div>
-      <h2>authors</h2>
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>born</th>
-            <th>books</th>
-          </tr>
+      <h2>Authors</h2>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell>born</TableCell>
+            <TableCell>books</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {authors.map((a) => (
-            <tr key={a.name}>
-              <td>{a.name}</td>
-              <td>{a.born}</td>
-              <td>{a.bookCount}</td>
-            </tr>
+            <TableRow key={a.name}>
+              <TableCell>{a.name}</TableCell>
+              <TableCell>{a.born}</TableCell>
+              <TableCell>{a.bookCount}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
       <SetBirthYear authors={authors} />
     </div>
   )

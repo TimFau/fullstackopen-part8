@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client"
 import { ALL_BOOKS } from "../queries"
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 
 const Books = (props) => {
   const result = useQuery(ALL_BOOKS)
@@ -16,24 +17,25 @@ const Books = (props) => {
 
   return (
     <div>
-      <h2>books</h2>
-
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
+      <h2>Books</h2>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell>author</TableCell>
+            <TableCell>published</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {books.map((a) => (
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author}</td>
-              <td>{a.published}</td>
-            </tr>
+            <TableRow key={a.title}>
+              <TableCell>{a.title}</TableCell>
+              <TableCell>{a.author}</TableCell>
+              <TableCell>{a.published}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

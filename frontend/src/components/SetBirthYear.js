@@ -5,7 +5,7 @@ import { useSnackbar } from 'notistack'
 
 const SetBirthYear = (props) => {
 
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+    const { enqueueSnackbar } = useSnackbar()
 
     const [ updateAuthor ] = useMutation(UPDATE_AUTHOR, {
         refetchQueries: [ { query: All_AUTHORS } ],

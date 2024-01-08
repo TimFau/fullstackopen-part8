@@ -137,13 +137,12 @@ const resolvers = {
       return await book.save()
     },
     editAuthor: (root, args) => {
-      const index = authors.findIndex(author => author.name === args.name)
-      if (index !== -1) {
-        const authorToUpdate = authors[index]
-        authorToUpdate.born = args.setBornTo
-        return authorToUpdate
-      } 
-      return null
+      const updatedAuthor =  async () => {
+        return await Author.findOneAndUpdate({ name: args.name}, { born: args.setBornTo }, {
+          new: true
+        })
+      }
+      return updatedAuthor()
     }
   },
 }

@@ -2,6 +2,7 @@ const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 const { v1: uuid } = require('uuid')
 const mongoose = require('mongoose')
+const { MongoClient, ObjectId } = require('mongodb')
 const Book = require('./models/book')
 const Author = require('./models/author')
 
@@ -55,24 +56,49 @@ const typeDefs = `
   }
 `
 
+async function findBooksByGenre(genre, authorId) {
+  const client = new MongoClient(MONGODB_URI)
+
+  try {
+    await client.connect()
+    const db = client.db()
+
+    let query = { genres: { $in: [genre] } }
+
+    if (authorId) {
+      query.author = new ObjectId(authorId)
+    }
+
+    const books = await db.collection('books').find(query).toArray()
+
+    return books
+  } finally {
+    await client.close();
+  }
+}
+
 const resolvers = {
   Query: {
     bookCount: () => Book.collection.countDocuments(),
     authorCount: () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
-      // let filteredBooks = Book.find({})
       if (args.author) {
         const author = async () => {
           return await Author.findOne({ name: args.author }).exec()
         }
         const authorResult = await author()
         const authorId = authorResult.id
+        if (args.genre) {
+          const booksByGenreAndAuthor = findBooksByGenre(args.genre, authorId)
+          return await booksByGenreAndAuthor
+        }
         return Book.find({ author: authorId })
       }
-      // if (args.genre) {
-      //   filteredBooks = filteredBooks.filter((book) => book.genres.includes(args.genre))
-      // }
-      // return filteredBooks
+      if (args.genre) {
+        const booksByGenre = findBooksByGenre(args.genre)
+        return await booksByGenre
+      }
+
       return Book.find({})
     },
     allAuthors: async () => Author.find({})

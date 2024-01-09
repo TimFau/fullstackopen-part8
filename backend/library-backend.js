@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const { MongoClient, ObjectId } = require('mongodb')
 const Book = require('./models/book')
 const Author = require('./models/author')
+const { GraphQLError } = require('graphql')
 
 require('dotenv').config()
 
@@ -129,12 +130,32 @@ const resolvers = {
         newAuthor = new Author({
           name: args.author
         })
-        await newAuthor.save()
+        try {
+          await newAuthor.save()
+        } catch (error) {
+          throw new GraphQLError('Saving author failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invaligArgs: args.author,
+              error
+            }
+          })
+        }
       }
 
       const book = new Book({ ...args, author: existingAuthor ? existingAuthor._id : newAuthor._id })
 
-      return await book.save()
+      try {
+        return await book.save()
+      } catch (error) {
+        throw new GraphQLError('Saving book failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+            error
+          }
+        })
+      }
     },
     editAuthor: (root, args) => {
       const updatedAuthor =  async () => {
@@ -142,7 +163,17 @@ const resolvers = {
           new: true
         })
       }
-      return updatedAuthor()
+      try {
+        return updatedAuthor()
+      } catch (error) {
+        throw new GraphQLError('Saving author failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invaligArgs: args.born,
+            error
+          }
+        })
+      }
     }
   },
 }

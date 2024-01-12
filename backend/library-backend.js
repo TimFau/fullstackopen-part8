@@ -5,7 +5,9 @@ const mongoose = require('mongoose')
 const { MongoClient, ObjectId } = require('mongodb')
 const Book = require('./models/book')
 const Author = require('./models/author')
+const User = require('./models/user')
 const { GraphQLError } = require('graphql')
+const jwt = require('jsonwebtoken')
 
 require('dotenv').config()
 
@@ -42,6 +44,20 @@ const typeDefs = `
     bookCount: Int
   }
 
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
+
+  type Query {
+    me: User
+  }
+
   type Mutation {
     addBook(
       title: String!
@@ -54,6 +70,16 @@ const typeDefs = `
       name: String!
       setBornTo: Int!
     ): Author
+
+    createUser(
+      username: String!
+      favoriteGenre: String!
+    ): User
+
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 `
 
@@ -102,7 +128,10 @@ const resolvers = {
 
       return Book.find({})
     },
-    allAuthors: async () => Author.find({})
+    allAuthors: async () => Author.find({}),
+    me: (root, args, context) => {
+      return context.currentUser
+    }
   },
   Book: {
     author(parent) {
@@ -122,7 +151,15 @@ const resolvers = {
     }
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
+      if (!context.currentUser) {
+        throw new GraphQLError('Invalid session, please login.', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+        return
+      }
       const { title, author, published, genres } = args
       const existingAuthor = await Author.findOne({ name: args.author })
       let newAuthor
@@ -136,7 +173,6 @@ const resolvers = {
           throw new GraphQLError('Saving author failed', {
             extensions: {
               code: 'BAD_USER_INPUT',
-              invaligArgs: args.author,
               error
             }
           })
@@ -157,7 +193,15 @@ const resolvers = {
         })
       }
     },
-    editAuthor: (root, args) => {
+    editAuthor: (root, args, context) => {
+      if (!context.currentUser) {
+        throw new GraphQLError('Invalid session, please login.', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+        return
+      }
       const updatedAuthor =  async () => {
         return await Author.findOneAndUpdate({ name: args.name}, { born: args.setBornTo }, {
           new: true
@@ -174,17 +218,68 @@ const resolvers = {
           }
         })
       }
+    },
+    createUser: async (root, args) => {
+      const newUser = new User({...args})
+      try {
+        return await newUser.save()
+      } catch (error) {
+        console.log(error)
+        throw new GraphQLError('Saving user failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invaligArgs: args.username,
+            error
+          }
+        })
+      }
+    },
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username })
+
+      if (!user) {
+        throw new GraphQLError('Wrong username', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+      }
+
+      if (args.password !== process.env.secret) {
+        throw new GraphQLError('Wrong credentials', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+      }
+
+      const userInfo = {
+        username: user.username,
+        id: user._id
+      }
+
+      return { value: jwt.sign(userInfo, process.env.SECRET)}
     }
   },
 }
 
 const server = new ApolloServer({
   typeDefs,
-  resolvers,
+  resolvers
 })
 
 startStandaloneServer(server, {
   listen: { port: 4000 },
+  context: async ({ req, res }) => {
+    const auth = req ? req.headers.authorization : null
+    if (auth && auth.startsWith('Bearer ')) {
+      const decodedToken = jwt.verify(
+        auth.substring(7), process.env.SECRET
+      )
+      const currentUser = await User.findById(decodedToken.id)
+      return { currentUser }
+    }
+  }
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`)
 })

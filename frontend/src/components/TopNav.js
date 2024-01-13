@@ -1,10 +1,18 @@
 import { AppBar, Button } from '@mui/material'
 
-const TopNav = ({ setPage }) => (
+const TopNav = ({ setPage, logout, token }) => (
     <AppBar position="static" sx={{ flexDirection: "row" }}>
-        <Button onClick={() => setPage('authors')} variant="contained">authors</Button>
-        <Button onClick={() => setPage('books')} variant="contained">books</Button>
-        <Button onClick={() => setPage('add')} variant="contained">add book</Button>
+        <Button onClick={() => setPage('authors')} variant="contained">Authors</Button>
+        <Button onClick={() => setPage('books')} variant="contained">Books</Button>
+        {token &&
+            <>
+                <Button onClick={() => setPage('add')} variant="contained">Add book</Button>
+                <Button onClick={() => logout()} variant="contained">Logout</Button>
+            </>
+        }
+        {!token && 
+            <Button onClick={() => setPage('login')} variant="contained">Login</Button>
+        }
     </AppBar>
 )
 

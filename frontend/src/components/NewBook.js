@@ -103,7 +103,7 @@ const NewBook = (props) => {
               add genre
             </Button>
           </FormControl>
-          <List>Genres: {genres.map(genre => <ListItem>{genre}</ListItem>)}</List>
+          <List>Genres: {genres.map(genre => <ListItem key={genre}>{genre}</ListItem>)}</List>
           <Button type="submit" variant="contained">Create Book</Button>
         </Stack>
       </form>

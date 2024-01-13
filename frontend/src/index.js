@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import { ApolloClient, ApolloProvider, HttpLink, InMemoryCache, createHttpLink } from '@apollo/client'
+import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client'
 import { SnackbarProvider } from 'notistack'
 import { setContext } from '@apollo/client/link/context'
 

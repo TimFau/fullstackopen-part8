@@ -1,7 +1,8 @@
 import { useQuery } from "@apollo/client"
 import { ALL_BOOKS } from "../queries"
-import { Table, TableBody, TableCell, TableHead, TableRow, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { useState } from "react"
+import BooksTable from "../components/BooksTable"
 
 const Books = (props) => {
   const result = useQuery(ALL_BOOKS)
@@ -39,24 +40,7 @@ const Books = (props) => {
       {currentGenre &&
         <div>Selected genre: {currentGenre}</div>
       }
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell></TableCell>
-            <TableCell>author</TableCell>
-            <TableCell>published</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {filteredBooks().map((book) => (
-            <TableRow key={book.title}>
-              <TableCell>{book.title}</TableCell>
-              <TableCell>{book.author.name}</TableCell>
-              <TableCell>{book.published}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <BooksTable books={filteredBooks()} />
       <ToggleButtonGroup exclusive fullWidth sx={{ pt: 4 }}>
       <ToggleButton value="all" selected={currentGenre === 'all'} onClick={() => setCurrentGenre('all')}>All</ToggleButton>
         {uniqueGenres.map((genre) => <ToggleButton value={genre} key={genre} selected={genre === currentGenre} onClick={() => setCurrentGenre(genre)}>{genre}</ToggleButton>)}

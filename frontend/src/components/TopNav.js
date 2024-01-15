@@ -7,6 +7,7 @@ const TopNav = ({ setPage, logout, token }) => (
         {token &&
             <>
                 <Button onClick={() => setPage('add')} variant="contained">Add book</Button>
+                <Button onClick={() => setPage('recommended')} variant="contained">Recommended</Button>
                 <Button onClick={() => logout()} variant="contained">Logout</Button>
             </>
         }

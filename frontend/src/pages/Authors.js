@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client'
 import { All_AUTHORS } from '../queries'
-import SetBirthYear from './SetBirthYear'
+import SetBirthYear from '../components/SetBirthYear'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 
 const Authors = (props) => {

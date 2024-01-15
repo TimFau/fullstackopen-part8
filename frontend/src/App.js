@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import Authors from './components/Authors'
-import Books from './components/Books'
-import NewBook from './components/NewBook'
-import Login from './components/Login'
+import Authors from './pages/Authors'
+import Books from './pages/Books'
+import NewBook from './pages/NewBook'
+import Recommended from './pages/Recommended'
+import Login from './pages/Login'
 import TopNav from './components/TopNav'
 import { useSnackbar } from 'notistack'
 import { useApolloClient } from '@apollo/client'
@@ -34,6 +35,7 @@ const App = () => {
       <Authors show={page === 'authors'} />
       <Books show={page === 'books'} />
       <NewBook show={page === 'add'} />
+      <Recommended show={page === 'recommended'} />
       <Login show={page === 'login'} setToken={setToken} setPage={setPage} />
     </div>
   )

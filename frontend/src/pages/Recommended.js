@@ -3,8 +3,10 @@ import { ALL_BOOKS, ME } from "../queries"
 import BooksTable from "../components/BooksTable"
 
 const Books = (props) => {
-  const result = useQuery(ALL_BOOKS)
   const me = useQuery(ME)
+  const favoriteGenre = me?.data?.me?.favoriteGenre || ''
+  const result = useQuery(ALL_BOOKS, { variables: { genre: favoriteGenre } })
+  const books = result?.data?.allBooks || []
 
   if (!props.show) {
     return null
@@ -14,18 +16,11 @@ const Books = (props) => {
     return <div>Loading...</div>
   }
 
-  const books = result?.data?.allBooks || []
-  const favoriteGenre = me?.data?.me?.favoriteGenre || ''
-
-  const filteredBooks = () => {
-    return books.filter((book) => book.genres.includes(favoriteGenre))
-  }
-
   return (
     <div>
         <h2>Recommended</h2>
         <div>Books in your favorite genre: {favoriteGenre}</div>
-        <BooksTable books={filteredBooks()} />
+        <BooksTable books={books} />
     </div>
   )
 }

@@ -34,6 +34,11 @@ const Books = (props) => {
     })
   })
 
+  const handleSetCurrentGenre  = (genre) => {
+    setCurrentGenre(genre)
+    result.refetch({ genre: genre })
+  }
+
   return (
     <div>
       <h2>Books</h2>
@@ -47,8 +52,8 @@ const Books = (props) => {
       }
       {!result.loading && <BooksTable books={books} />}
       <ToggleButtonGroup exclusive fullWidth sx={{ pt: 4 }}>
-        <ToggleButton value="all" selected={currentGenre === ''} onClick={() => setCurrentGenre('')}>All</ToggleButton>
-          {uniqueGenres.map((genre) => <ToggleButton value={genre} key={genre} selected={genre === currentGenre} onClick={() => setCurrentGenre(genre)}>{genre}</ToggleButton>)}
+        <ToggleButton value="all" selected={currentGenre === ''} onClick={() => handleSetCurrentGenre('')}>All</ToggleButton>
+          {uniqueGenres.map((genre) => <ToggleButton value={genre} key={genre} selected={genre === currentGenre} onClick={() => handleSetCurrentGenre(genre)}>{genre}</ToggleButton>)}
       </ToggleButtonGroup>
     </div>
   )

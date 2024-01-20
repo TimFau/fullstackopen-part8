@@ -20,8 +20,10 @@ const NewBook = (props) => {
       error.graphQLErrors.map(error => enqueueSnackbar(error.message, { variant: 'error' }))
     },
     onCompleted: (response) => {
-      const bookTitle = response.addBook.title
-      enqueueSnackbar(`${bookTitle} Added`, { variant: 'success' })
+      // Below causes duplicate notifications about book added.
+      // - Ideally, we should show the success variant if added by the user, and info variant if not 
+      // const bookTitle = response.addBook.title
+      // enqueueSnackbar(`${bookTitle} Added`, { variant: 'success' })
     }
   })
 
@@ -62,8 +64,12 @@ const NewBook = (props) => {
   }
 
   const addGenre = () => {
-    setGenres(genres.concat(genre))
-    setGenre('')
+    if (genre.includes(' ')) {
+      enqueueSnackbar('Genre cannot contain spaces', { variant: 'error' })
+    } else {
+      setGenres(genres.concat(genre))
+      setGenre('')
+    }
   }
 
   return (

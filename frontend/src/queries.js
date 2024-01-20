@@ -1,26 +1,68 @@
 import { gql } from "@apollo/client"
 
+export const AUTHOR_FIELDS = gql`
+    fragment AuthorFields on Author {
+        name
+        born
+        bookCount
+    }
+`
+
 export const All_AUTHORS = gql`
+    ${AUTHOR_FIELDS}
     query AllAuthors {
         allAuthors {
-            bookCount
-            born
-            name
+            ...AuthorFields
         }
   }
 `
 
+export const UPDATE_AUTHOR = gql`
+    ${AUTHOR_FIELDS}
+    mutation EditAuthor($name: String!, $setBornTo: Int!) {
+        editAuthor(name: $name, setBornTo: $setBornTo) {
+            ...AuthorFields
+        }
+    }
+`
+
+export const BOOK_FIELDS = gql`
+  ${AUTHOR_FIELDS}
+  fragment BookFields on Book {
+    author {
+        ...AuthorFields
+    }
+    published
+    title
+    genres
+  }
+`
+
 export const ALL_BOOKS = gql`
+    ${BOOK_FIELDS}
     query AllBooks($genre: String) {
         allBooks(genre: $genre) {
-            author {
-                name
-            }
-            published
-            title
-            genres
+            ...BookFields
         }
   }
+`
+
+export const ADD_BOOK = gql`
+    ${BOOK_FIELDS}
+    mutation AddBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
+        addBook(title: $title, author: $author, published: $published, genres: $genres) {
+            ...BookFields
+        }
+    }
+`
+
+export const BOOK_ADDED = gql`
+    ${BOOK_FIELDS}
+    subscription {
+        bookAdded {
+            ...BookFields
+        }
+    }
 `
 
 export const ALL_GENRES = gql`
@@ -38,26 +80,6 @@ export const ME = gql`
         favoriteGenre
     }
   }
-`
-
-export const ADD_BOOK = gql`
-    mutation AddBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
-        addBook(title: $title, author: $author, published: $published, genres: $genres) {
-            title
-            author {
-                name
-            }
-        }
-    }
-`
-
-export const UPDATE_AUTHOR = gql`
-    mutation EditAuthor($name: String!, $setBornTo: Int!) {
-        editAuthor(name: $name, setBornTo: $setBornTo) {
-            name
-            born
-        }
-    }
 `
 
 export const LOGIN = gql`

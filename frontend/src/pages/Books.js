@@ -11,7 +11,7 @@ const useBooksQuery = (genre) => {
 
 const Books = (props) => {
   const [currentGenre, setCurrentGenre] = useState('')
-  const result = useBooksQuery(currentGenre)
+  const filteredBooksResult = useBooksQuery(currentGenre)
   const genresResult = useQuery(ALL_GENRES)
 
   if (!props.show) {
@@ -22,7 +22,7 @@ const Books = (props) => {
     return <div>Loading...</div>
   }
 
-  const books = result?.data?.allBooks || []
+  const books = currentGenre ? filteredBooksResult?.data?.allBooks || [] : props.allBooks || []
   const genres = genresResult?.data.allBooks || []
   const uniqueGenres = []
 
@@ -36,7 +36,7 @@ const Books = (props) => {
 
   const handleSetCurrentGenre  = (genre) => {
     setCurrentGenre(genre)
-    result.refetch({ genre: genre })
+    filteredBooksResult.refetch({ genre: genre })
   }
 
   return (
@@ -45,12 +45,12 @@ const Books = (props) => {
       {currentGenre &&
         <div>Selected genre: {currentGenre}</div>
       }
-      {result.loading &&
+      {filteredBooksResult.loading &&
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <CircularProgress sx={{ p: 4 }} />
         </Box>
       }
-      {!result.loading && <BooksTable books={books} />}
+      {!filteredBooksResult.loading && <BooksTable books={books} />}
       <ToggleButtonGroup exclusive fullWidth sx={{ pt: 4 }}>
         <ToggleButton value="all" selected={currentGenre === ''} onClick={() => handleSetCurrentGenre('')}>All</ToggleButton>
           {uniqueGenres.map((genre) => <ToggleButton value={genre} key={genre} selected={genre === currentGenre} onClick={() => handleSetCurrentGenre(genre)}>{genre}</ToggleButton>)}

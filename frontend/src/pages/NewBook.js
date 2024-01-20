@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ADD_BOOK, ALL_BOOKS, All_AUTHORS } from '../queries'
+import { ADD_BOOK, All_AUTHORS } from '../queries'
 import { useMutation } from '@apollo/client'
 import { useSnackbar } from 'notistack'
 import { Stack, TextField, Button, FormControl, List, ListItem } from "@mui/material"
@@ -14,7 +14,7 @@ const NewBook = (props) => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
   const [ addBook ] = useMutation(ADD_BOOK, {
-    refetchQueries: [ { query: ALL_BOOKS }, { query: All_AUTHORS } ],
+    refetchQueries: [ { query: All_AUTHORS } ],
     onError: (error) => {
       console.log('error', error.graphQLErrors)
       error.graphQLErrors.map(error => enqueueSnackbar(error.message, { variant: 'error' }))

@@ -1,18 +1,26 @@
 import { useQuery } from "@apollo/client"
 import { ALL_BOOKS, ALL_GENRES } from "../queries"
 import { Box, CircularProgress, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import BooksTable from "../components/BooksTable"
 
-const useBooksQuery = (genre) => {
-  const query = useQuery(ALL_BOOKS, { variables: { genre: genre } })
-  return query
-}
 
 const Books = (props) => {
   const [currentGenre, setCurrentGenre] = useState('')
-  const filteredBooksResult = useBooksQuery(currentGenre)
+  const filteredBooksResult = useQuery(ALL_BOOKS)
   const genresResult = useQuery(ALL_GENRES)
+  const allBooks = props.allBooks
+
+  // TODO: Find a better way to handle updating the books by genre.
+  // It violates the 'exhaustive-deps' rule but, if I add 'filteredBooksResult'
+  // to the dependency array, this query will needlessly fetch twice
+  useEffect(() => {
+    // console.log('useEffect')
+    if (currentGenre) {
+      // console.log('useEffect refetch')
+      filteredBooksResult.refetch()
+    }
+  }, [allBooks, currentGenre])
 
   if (!props.show) {
     return null
@@ -22,7 +30,7 @@ const Books = (props) => {
     return <div>Loading...</div>
   }
 
-  const books = currentGenre ? filteredBooksResult?.data?.allBooks || [] : props.allBooks || []
+  const books = currentGenre ? filteredBooksResult?.data?.allBooks || [] : allBooks || []
   const genres = genresResult?.data.allBooks || []
   const uniqueGenres = []
 
@@ -36,7 +44,7 @@ const Books = (props) => {
 
   const handleSetCurrentGenre  = (genre) => {
     setCurrentGenre(genre)
-    filteredBooksResult.refetch({ genre: genre })
+    filteredBooksResult.refetch({ genre: currentGenre })
   }
 
   return (

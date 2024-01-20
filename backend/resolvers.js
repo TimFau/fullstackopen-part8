@@ -34,6 +34,7 @@ const resolvers = {
       bookCount: () => Book.collection.countDocuments(),
       authorCount: () => Author.collection.countDocuments(),
       allBooks: async (root, args) => {
+        // console.log('allBooks')
         if (args.author) {
           const author = async () => {
             return await Author.findOne({ name: args.author }).exec()

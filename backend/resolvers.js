@@ -1,9 +1,12 @@
 const { MongoClient, ObjectId } = require('mongodb')
+const jwt = require('jsonwebtoken')
+const { GraphQLError } = require('graphql')
+const { PubSub } = require('graphql-subscriptions')
 const Book = require('./models/book')
 const Author = require('./models/author')
 const User = require('./models/user')
-const jwt = require('jsonwebtoken')
-const { GraphQLError } = require('graphql')
+
+const pubsub = new PubSub()
 
 async function findBooksByGenre(genre, authorId) {
     const client = new MongoClient(process.env.MONGODB_URI)
@@ -104,7 +107,7 @@ const resolvers = {
         const book = new Book({ ...args, author: existingAuthor ? existingAuthor._id : newAuthor._id })
   
         try {
-          return await book.save()
+          await book.save()
         } catch (error) {
           throw new GraphQLError('Saving book failed', {
             extensions: {
@@ -114,6 +117,9 @@ const resolvers = {
             }
           })
         }
+
+        pubsub.publish('BOOK_ADDED', { bookAdded: book })
+        return book
       },
       editAuthor: (root, args, context) => {
         if (!context.currentUser) {
@@ -183,6 +189,11 @@ const resolvers = {
         return { value: jwt.sign(userInfo, process.env.SECRET)}
       }
     },
+    Subscription: {
+        bookAdded: {
+            subscribe: () => pubsub.asyncIterator('BOOK_ADDED')
+        }
+    }
 }
 
 module.exports = resolvers

@@ -11,7 +11,14 @@ const schema = new mongoose.Schema({
   born: {
     type: Number,
     minlength: 4
-  }
+  },
+})
+
+schema.virtual('bookCount', {
+  ref: 'Book',
+  localField: '_id',
+  foreignField: 'author',
+  count: true
 })
 
 schema.plugin(uniqueValidator)
